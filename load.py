@@ -61,7 +61,7 @@ def load_json(stat_arr, options):
     data = []
 
     # choosing the minimal value
-    min_val = 0.000000001
+    min_val = 0.0001
     if options['plot_type'] == 'scatter':
         if options['x_min']:
             min_val = max(options['x_min'], options['y_min'])
@@ -89,12 +89,7 @@ def load_json(stat_arr, options):
                         val = min_val
 
                 num_solved += 1
-            else:
-                val = float(options['timeout'])
-                if options['plot_type'] == 'cactus':
-                    val *= 10
-
-            vals.append(val)
+                vals.append(val)
 
         if type(options['legend']) is list:
             label = ' '.join([stat_obj.preamble[k] for k in options['legend']])
@@ -152,8 +147,10 @@ def load_json(stat_arr, options):
 
     if options['repls']:
         data = [(options['repls'][n], v, s, l) if n in options['repls'] else (n, v, s, l) for n, v, s, l in data]
-
-    return sorted(data, key=lambda x: x[2] + len(x[1]) / sum(x[1]), reverse=not options['reverse'])
+    if options['unsorted']:
+        return data
+    ## Sort by names
+    return sorted(data, key=lambda x: x[0], reverse=not options['reverse'])
 
 
 #

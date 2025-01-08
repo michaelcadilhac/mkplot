@@ -30,6 +30,7 @@ class Plot():
         self.alpha       = options['alpha']
         self.backend     = options['backend']
         self.save_to     = options['save_to']
+        self.save_legend_to = options['save_legend_to']
         self.def_path    = options['def_path']
         self.transparent = options['transparent']
 
@@ -60,6 +61,8 @@ class Plot():
 
         # where to save
         self.save_to = '{0}.{1}'.format(os.path.splitext(self.save_to)[0], self.backend)
+        if not self.save_legend_to is None:
+            self.save_legend_to = '{0}.{1}'.format(os.path.splitext(self.save_legend_to)[0], self.backend)
 
         # font properties
         self.f_props = {'serif': ['Times'], 'sans-serif': ['Helvetica'],

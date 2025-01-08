@@ -54,7 +54,9 @@ def parse_options():
                                     'replace=',
                                     'reverse',
                                     'save-to=',
+                                    'save-legend-to=',
                                     'shape=',
+                                    'unsorted=',
                                     'timeout=',
                                     'tlabel=',
                                     'tol-loc=',
@@ -131,8 +133,12 @@ def parse_options():
             options['reverse'] = True
         elif opt == '--save-to':
             options['save_to'] = str(arg)
+        elif opt == '--save-legend-to':
+            options['save_legend_to'] = str(arg)
         elif opt == '--shape':
             options['shape'] = str(arg)
+        elif opt == '--unsorted':
+            options['unsorted'] = True
         elif opt in ('-t', '--timeout'):
             options['timeout'] = float(arg)
         elif opt == '--tlabel':
@@ -210,8 +216,11 @@ def usage():
     print('        --reverse                       Use reversed sorting')
     print('        --save-to=<string>              Where result figure should be saved')
     print('                                        Default value: plot')
+    print('        --save-legend-to=<string>       Where legend should be saved')
+    print('                                        Default value: <unset>')
     print('        --shape=<string>                Shape of the plot')
     print('                                        Available values: long, squared, standard (default = standard)')
+    print('        --unsorted                      Do not sort')
     print('        -t, --timeout=<int>             Timeout value')
     print('                                        Available values: [0 .. INT_MAX] (default = 3600)')
     print('        --tlabel=<string>               Timeout label (for scatter plots only)')

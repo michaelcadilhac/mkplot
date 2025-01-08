@@ -11,6 +11,7 @@
 #
 #==============================================================================
 import json
+import pylab
 import matplotlib.pyplot as plt
 from matplotlib import __version__ as mpl_version
 import math
@@ -19,6 +20,10 @@ import os
 from plot import Plot
 import six
 
+def export_legend(legend, filename="legend.png"):
+    fig  = legend.figure
+    bbox  = legend.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
+    fig.savefig(filename, dpi="figure", bbox_inches=bbox)
 
 #
 #==============================================================================
@@ -47,7 +52,8 @@ class Cactus(Plot, object):
         for d in data:
             coords.append(np.arange(1, len(d[1]) + 1))  # xs (separate for each line)
             coords.append(np.array(sorted(d[1])))
-        lines = plt.plot(*coords, zorder=3)
+        fig, ax = plt.subplots ()
+        lines = ax.plot(*coords, zorder=3)
 
         # setting line styles
         if self.byname == False:  # by default, assign fist line to best tool
@@ -63,25 +69,24 @@ class Cactus(Plot, object):
 
         # turning the grid on
         if not self.no_grid:
-            plt.grid(True, color=self.grid_color, ls=self.grid_style, lw=self.grid_width, zorder=1)
+            ax.grid(True, color=self.grid_color, ls=self.grid_style, lw=self.grid_width, zorder=1)
 
         # axes limits
-        plt.xlim(self.x_min, self.x_max if self.x_max else math.ceil(max([d[2] for d in data]) / float(100)) * 100)
-        plt.ylim(self.y_min, self.y_max if self.y_max else self.timeout)
+        ax.set_xlim(self.x_min, self.x_max if self.x_max else math.ceil(max([d[2] for d in data]) / float(100)) * 100)
+        ax.set_ylim(self.y_min, self.y_max if self.y_max else self.timeout)
 
         # axes labels
         if self.x_label:
-            plt.xlabel(self.x_label)
+            ax.set_xlabel(self.x_label)
         else:
-            plt.xlabel('instances')
+            ax.set_xlabel('instances')
 
         if self.y_label:
-            plt.ylabel(self.y_label)
+            ax.set_ylabel(self.y_label)
         else:
-            plt.ylabel('CPU time (s)')
+            ax.set_ylabel('CPU time (s)')
 
         # choosing logarithmic scales if needed
-        ax = plt.gca()
         if self.x_log:
             ax.set_xscale('log')
         if self.y_log:
@@ -99,19 +104,24 @@ class Cactus(Plot, object):
             ax.set_xticklabels(ax.get_xticks(), self.f_props)
             ax.set_yticklabels(ax.get_yticks(), self.f_props)
 
-        strFormatter = plt.FormatStrFormatter('%d')
+        floatstrFormatter = plt.FormatStrFormatter('%.1f')
+        intstrFormatter = plt.FormatStrFormatter('%d')
         logFormatter = plt.LogFormatterMathtext(base=10)
-        ax.xaxis.set_major_formatter(strFormatter if not self.x_log else logFormatter)
-        ax.yaxis.set_major_formatter(strFormatter if not self.y_log else logFormatter)
+        ax.xaxis.set_major_formatter(intstrFormatter if not self.x_log else logFormatter)
+        ax.yaxis.set_major_formatter(floatstrFormatter if not self.y_log else logFormatter)
 
         # making the legend
         if self.lgd_loc != 'off':
             lgtext = [d[0] for d in data]
             lg = ax.legend(lines, lgtext, ncol=self.lgd_ncol, loc=self.lgd_loc, fancybox=self.lgd_fancy, shadow=self.lgd_shadow if self.lgd_alpha == 1.0 else False)
-            fr = lg.get_frame()
-            fr.set_lw(1)
-            fr.set_alpha(self.lgd_alpha)
-            fr.set_edgecolor('black')
+            if not self.save_legend_to is None:
+                export_legend (lg, self.save_legend_to)
+                lg.remove ()
+            else:
+                fr = lg.get_frame()
+                fr.set_lw(1)
+                fr.set_alpha(self.lgd_alpha)
+                fr.set_edgecolor('black')
 
         # setting frame thickness
         for i in six.itervalues(ax.spines):
