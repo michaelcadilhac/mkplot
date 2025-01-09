@@ -22,8 +22,11 @@ import six
 
 def export_legend(legend, filename="legend.png"):
     fig  = legend.figure
-    bbox  = legend.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
-    fig.savefig(filename, dpi="figure", bbox_inches=bbox)
+    try:
+        bbox  = legend.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
+        fig.savefig(filename, dpi="figure", bbox_inches=bbox)
+    except:
+        pass
 
 #
 #==============================================================================
